@@ -1,0 +1,173 @@
+<!-- views/profile.ejs -->
+<!doctype html>
+<html>
+<head>
+	<title> Drop Net Home </title>
+	<!-- <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> -->
+	<link rel="stylesheet" href="/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/css/fa/css/font-awesome.min.css">
+	<!-- <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"> -->
+	<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
+	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script src="https://cdn.goinstant.net/v1/platform.min.js"></script>
+	<style>
+		body 		{ padding-top:80px; word-wrap:break-word; }
+
+		#speech {
+		  -webkit-transform: scale(4,4)
+		}
+
+		#bigmic {
+			-webkit-transform: scale(7,7); 
+			opacity:1;
+			color: red; 
+			width:10px; 
+			border:none; 
+			margin-left:00px; 
+			margin-top:50px;
+			/*margin: auto;*/
+		}
+
+		#input-holders {
+			display: none;
+		}
+		#text-input {
+			margin-top: 100px;
+			border: none;
+			border-bottom: 1px solid grey;
+			height: 50px;
+			width: 250px;
+			font-size: 24px;
+		}
+		#back{
+			margin-bottom: 20px;
+			margin-right: 215px;
+			border: none;
+		}
+
+
+		.cocards{
+			background-color: white;
+			margin: 10px auto;
+			box-shadow:0 1px 2px #aaa;
+			padding:.8rem .8rem .2rem .8rem;
+			position: relative;
+		}
+		.cocards:hover{
+			/*border:1px orange solid;*/
+			-moz-box-shadow: 0 0 5px rgba(0,0,0,0.5);
+			-webkit-box-shadow: 0 0 5px rgba(0,0,0,0.5);
+			box-shadow: 0 0 5px rgba(0,0,0,0.5);
+		}
+		.cardt a{
+			font-size: 1.25em;
+			font-weight: 200;
+		}
+		.cardt{
+			border-bottom: 1px solid darkgrey;
+		}
+		.cardtl{
+			width: 68%;
+			padding: 3px;
+		}
+		.cardtr{
+			width: 28%;
+			vertical-align: top;
+			text-align: right;
+			color: grey;
+		}
+		.cardtr strong{
+			font-size: 1.25em;
+			color: black;
+		}
+		.cardbl{
+			width: 68%;
+			background-color: #5cb85cbreak;
+			padding: 3px;
+			font-size: .95em;
+		}
+		.cardbr{
+			width: 28%;
+			text-align: right;
+			padding: 3px;
+		}
+		.cardbr>a:hover{
+			color: red;
+		}
+	</style>
+</head>
+<body>
+<div class="container">
+
+	<div class="page-header text-center">
+		<h1 id="title"><span class="fa fa-users"></span> Drop Net </h1>
+		<!-- <a href="/logout" class="btn btn-default btn-sm">Logout</a> -->
+	</div>
+
+	<div id='button-holders' class='text-center'>
+		<button id='drop-btn' class="btn btn-primary btn-lg"><span class="fa fa-anchor"><br>Drop</button>
+		<button id='join-btn' class="btn btn-default btn-lg"><span class="fa fa-rocket"><br>Join</button>
+		<!-- <i class="fa fa-cloud-download"></i> -->
+	</div>
+	<div id='input-holders' class='text-center'>
+		<div>
+			<button id='back' class='btn btn-default'><span class="fa fa-arrow-left"></button>
+		</div>
+		<input speech="speech" x-webkit-speech="x-webkit-speech" id='bigmic'/>
+		<br>
+		<input id='text-input' placeholder="type here...">
+	</div>
+	<div>
+	</div>
+
+
+
+
+	<!-- <div id='join-input-holders' class='text-center'>
+		<input speech="speech" x-webkit-speech="x-webkit-speech" id='join-bigmic'/>
+		<br>
+		<input id='join-text-input' placeholder="type here...">
+	</div> -->
+
+	<!-- Speech Input 
+		<input id='test'>
+		<input speech="speech" x-webkit-speech="x-webkit-speech" id='speechtext'/>
+	 -->
+
+
+
+</div>
+<script type="text/javascript">
+
+	// https://goinstant.net/9434c048d8ab/lahacks
+	var url = 'https://goinstant.net/9434c048d8ab/lahacks';
+	//var connect = goinstant.connect(url);
+	var connection = new goinstant.Connection(url);
+
+	connection.connect(function(err) {
+	  if (err) {
+	    console.log('Error connecting to GoInstant:', err);
+	    return;
+	  } else {
+	  	console.log('Success!');
+	  	var key = room.key('/foo');
+		try {
+		  key.add('value', 'notAFunction');
+		} catch(err) {
+		  // Error will occur
+		  console.log('error!');
+		}
+	  }
+
+	  // you're connected!
+	});
+
+	var room = connection.room('exampleRoom');
+	room.join(function (err) {
+	// ...
+	});
+
+
+</script>
+</body>
+</html>

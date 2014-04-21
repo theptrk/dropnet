@@ -1,0 +1,450 @@
+<!-- views/profile.ejs -->
+<!doctype html>
+<html>
+<head>
+	<title> Drop Net Home </title>
+	<!-- <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> -->
+	<link rel="stylesheet" href="/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/css/fa/css/font-awesome.min.css">
+	<!-- <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"> -->
+	<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
+	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script src='https://cdn.firebase.com/js/client/1.0.11/firebase.js'></script>
+	<style>
+		body 		{ padding-top:80px; word-wrap:break-word; }
+
+		#speech {
+		  -webkit-transform: scale(4,4)
+		}
+
+		#bigmic {
+			-webkit-transform: scale(7,7); 
+			opacity:1;
+			color: red; 
+			width:10px; 
+			border:none; 
+			margin-left:00px; 
+			margin-top:50px;
+			/*margin: auto;*/
+		}
+
+		#input-holders {
+			display: none;
+		}
+		#text-input {
+			margin-top: 100px;
+			border: none;
+			border-bottom: 1px solid grey;
+			height: 50px;
+			width: 250px;
+			font-size: 24px;
+		}
+		#back{
+			margin-bottom: 20px;
+			margin-right: 215px;
+			border: none;
+		}
+
+
+		.cocards{
+			background-color: white;
+			margin: 10px auto;
+			box-shadow:0 1px 2px #aaa;
+			padding:.8rem .8rem .2rem .8rem;
+			position: relative;
+		}
+		.cocards:hover{
+			/*border:1px orange solid;*/
+			-moz-box-shadow: 0 0 5px rgba(0,0,0,0.5);
+			-webkit-box-shadow: 0 0 5px rgba(0,0,0,0.5);
+			box-shadow: 0 0 5px rgba(0,0,0,0.5);
+		}
+		.cardt a{
+			font-size: 1.25em;
+			font-weight: 200;
+		}
+		.cardt{
+			border-bottom: 1px solid darkgrey;
+		}
+		.cardtl{
+			width: 68%;
+			padding: 3px;
+		}
+		.cardtr{
+			width: 28%;
+			vertical-align: top;
+			text-align: right;
+			color: grey;
+		}
+		.cardtr strong{
+			font-size: 1.25em;
+			color: black;
+		}
+		.cardbl{
+			width: 68%;
+			background-color: #5cb85cbreak;
+			padding: 3px;
+			font-size: .95em;
+		}
+		.cardbr{
+			width: 28%;
+			text-align: right;
+			padding: 3px;
+		}
+		.cardbr>a:hover{
+			color: red;
+		}
+	</style>
+</head>
+<body>
+<div class="container">
+
+	<div class="page-header text-center">
+		<h1 id="title"><span class="fa fa-users"></span> Drop Net </h1>
+		<!-- <a href="/logout" class="btn btn-default btn-sm">Logout</a> -->
+	</div>
+
+	<div id='button-holders' class='text-center'>
+		<button id='drop-btn' class="btn btn-primary btn-lg"><span class="fa fa-anchor"><br>Drop</button>
+		<button id='join-btn' class="btn btn-default btn-lg"><span class="fa fa-rocket"><br>Join</button>
+		<!-- <i class="fa fa-cloud-download"></i> -->
+	</div>
+	<div id='input-holders' class='text-center'>
+		<div>
+			<button id='back' class='btn btn-default'><span class="fa fa-arrow-left"></button>
+		</div>
+		<input speech="speech" x-webkit-speech="x-webkit-speech" id='bigmic'/>
+		<br>
+		<input id='text-input' placeholder="type here...">
+	</div>
+	<div>
+	</div>
+
+	<div class="cocards">
+      <a class="cardlink" href="posting/1959/kAlE/{{p.pk}}/">
+        <div class="cardt">
+          <div class="cardtl iblock">
+            <strong>{{ p.company }}</strong> {% if p.division %} - {{ p.division}}{% endif %}   
+            <br>{{ p.position }}{% if p.location %}, {% endif %}{{ p.location}}   
+          </div>
+          <div class="cardtr iblock">
+            {{ p.get_stage_display }} <br> {{ p.created|date:"D M d"}} 
+          </div>
+        </div>
+      </a>
+      <div class="cardbl iblock">
+        {% if p.notes %} Notes: {{p.notes}}{% endif %}
+      </div>
+      <div class="cardbr iblock">
+        <a href="/deletethis/{{p.user.pk}}/1959/{{p.pk}}">archive</a>
+      </div>
+    </div>
+
+
+
+	<!-- <div id='join-input-holders' class='text-center'>
+		<input speech="speech" x-webkit-speech="x-webkit-speech" id='join-bigmic'/>
+		<br>
+		<input id='join-text-input' placeholder="type here...">
+	</div> -->
+
+	<!-- Speech Input 
+		<input id='test'>
+		<input speech="speech" x-webkit-speech="x-webkit-speech" id='speechtext'/>
+	 -->
+
+	
+
+	<!-- LinkedIn Profile <div class='row'>
+		<div class="col-sm-6">
+			<div class="well">
+				<h3 class="text-primary"><span class="fa fa-linkedin"></span> LinkedIn</h3>
+				<% if (user.linkedin.token) { %>
+					<p>
+						<strong>id</strong>: <%= user.linkedin.id %><br>
+						<strong>token</strong>: <%= user.linkedin.token %><br>
+						<strong>email</strong>: <%= user.linkedin.email %><br>
+						<strong>name</strong>: <%= user.linkedin.name %> <br>
+						<strong>headline</strong>: <%= user.linkedin.headline %> <br>
+						<strong>picture</strong>: <img src="<%= user.linkedin.picture %>"><br>
+					</p>
+
+					<a href="/unlink/linkedin" class="btn btn-primary">Unlink</a>
+				<% } else { %>
+					<a href="/connect/linkedin" class="btn btn-primary">Connect LinkedIn</a>
+				<% } %>
+
+			</div>
+		</div>
+	</div> -->
+</div>
+<script type="text/javascript">
+
+// global variables
+var myDataRef 	= new Firebase('https://anugc91865t.firebaseio-demo.com/');
+var roomsRef 	= myDataRef.child('rooms');
+var usersRef 	= myDataRef.child('users');
+var linkedID 	= "<%= user.linkedin.id %>"
+var linkedName 	= "<%= user.linkedin.name %>"
+var linkedEmail = "<%= user.linkedin.email %>"
+
+var current_activity;
+var existing_rooms = []; // room name, rooms uniqueID ...
+var guest_of_rooms = []; // rooms unique ID
+var admin_of_rooms = []; // rooms unique ID
+
+
+// Use this to populate empty arrays for use in the global scope
+
+	roomsRef.on('child_added', function(snap){
+		console.log('pushing ' + snap.val().Net_Name);
+		existing_rooms.push(snap.val().Net_Name)
+		existing_rooms.push(snap.val().Room_ID)
+	})
+
+	usersRef.child(linkedID + '/guest_of/').on('child_added', function(snap){
+		console.log('pushing ' + snap.val().Net_Name);
+		guest_of_rooms.push(snap.val());
+		guest_of_rooms.push(snap.name());
+		
+	})
+
+	usersRef.child(linkedID + '/admin_of/').on('child_added', function(snap){
+		console.log('pushing ' + snap.val().Net_Name);
+		guest_of_rooms.push(snap.val());
+		guest_of_rooms.push(snap.name());
+	})
+
+$(document).ready(function(){
+
+	var parseText = function(input){
+		//var existingroomnames = pluck(myDataRef, "roomname");
+		var now = Date.now();
+		var query_room = input.slice(9, input.length)
+
+	  	if ( /^drop net/.test(input) ){
+
+	  		if (existing_rooms.indexOf(query_room) !== -1) { 
+	  			//creating a new room
+		  		var newRoom = roomsRef.push();
+	  			newRoom.set({
+	  				Admin: linkedID,
+					AdminDisplay: linkedName,
+					AdminEmail: linkedEmail,
+					GPS: false,
+					Net_Name: $('#test').val(),
+					Room_ID: newRoom.name(),
+					created: now
+	  			})
+				$('#test').val('');
+
+	    		return 'Net created: ' + query_room;
+			} else {
+				// name taken. do something
+			}
+	  	}
+
+	  	else if ( /^join net/.test(input) ){
+	  		if (existing_rooms.indexOf(query_room) !== -1) {
+				//creating a new room
+				var target_room = existing_rooms.indexOf(query_room) + 1;
+				var guestlist = myDataRef.child('/rooms/' + target_room + '/guests' + linkedID);
+
+				guestlist.set({
+					visitor_id : linkedID,
+					visitor_name : linkedName,
+					visitor_email : linkedEmail
+
+				})
+
+	  			return 'Net joined: ' + query_room;
+	  		} else {
+	  			//net doesnt exist, do somethign
+	  		}
+	  	}
+	  	return false;
+	}
+
+	function handleNet (input) {
+		console.log('short Parsing');
+		var now = Date.now();
+		if (current_activity === 'drop') {
+			if (existing_rooms.indexOf(input) === -1) { 
+	  			//creating a new room
+		  		var newRoom = roomsRef.push();
+		  		var newRoomID = newRoom.name();
+	  			newRoom.set({
+	  				Admin: linkedID,
+					AdminDisplay: linkedName,
+					AdminEmail: linkedEmail,
+					GPS: false,
+					Net_Name: input,
+					Room_ID: newRoomID,
+					created: now
+	  			});
+
+	  			var userEvent = usersRef.child(linkedID + '/admin_of/' + newRoomID).set(input);
+	  			var userMeta = usersRef.child(linkedID + '/meta/').set({
+	  				ID: linkedID,
+					DisplayName: linkedName,
+					Email: linkedEmail,
+					GPS: false,
+					updated: now
+	  			});
+
+				$('#test').val('');
+	    		return 'Net created: ' + input;
+			} else {
+				// name taken. do something
+				console.log('index !== -1 aka net already exists');
+				var warning = 'Net already exists';
+				$('body').append("<div class='alert alert-danger text-center'> "+
+  				"<button type='button' class='close' data-" +
+  				"dismiss='alert' "+ 
+  				"aria-hidden='true'>&times;</button>" +
+  				"<strong>Warning! </strong>"+warning+"</div>");
+  				setTimeout(function(){
+  					$(".alert").remove()
+  				}, 3000);
+			}
+
+		};
+		if (current_activity === 'join') {
+			if (existing_rooms.indexOf(input) !== -1) { 
+	  			var fbid = existing_rooms[existing_rooms.indexOf(input)+1];
+				roomsRef.child(fbid + '/guests/' + linkedID).set({
+					gLinkedIn: linkedID,
+					gDisplayName: linkedName,
+					gEmail: linkedEmail,
+					added: now
+				})
+
+				var userEvent = usersRef.child(linkedID + '/guest_of/' + fbid).set(input);
+
+				$('#test').val('');
+				return 'Net joined: ' + input;
+
+			} else {
+				// name taken. do something
+				console.log('index !== -1 aka net DOES NOT exists');
+				var warning = 'Net DOES NOT exist';
+				$('body').append("<div class='alert alert-danger " + 
+					"text-center'> <button type='button'" + 
+					"class='close' data-dismiss='alert' "+ 
+  					"aria-hidden='true'>&times;</button>" +
+  					"<strong>Warning! </strong>"+warning+"</div>");
+  				setTimeout(function(){
+  					$(".alert").remove()
+  				}, 3000);
+			}
+		};
+		$('#test').val('');
+		return false;
+	}
+
+
+  	function logger (stuff) {
+  		console.log(stuff);
+  		var state = handleNet(stuff);
+  		//go back to index page
+  		console.log(state);
+  		if (state !== false){
+	  		$('#back').trigger('click');
+			console.log('activity completed');
+		}
+  		//var state =parseText(stuff)
+	  		// if (state){
+	  		// 	$('body').append("<p class='bg-success'>"+state+"</div>");
+	  		// 	$('.bg-danger').remove();
+	  		// }
+	  		// else {
+	  		// 	$('body').append("<div class='bg-danger'>Unrecognised Command!</div>");
+	  		// }
+  		return stuff;
+  	}
+
+  	var throttlelogger = _.throttle(logger, 6000);
+
+	var timer;
+	$('#bigmic').on('input', function(){
+		console.log('...speech text processing');
+		$('#text-input').val($(this).val())
+		var that = this;
+		timer = setTimeout(function(){
+			throttlelogger($(that).val())	
+		}, 2000)
+	})
+
+	$('#test').keypress(function (e) {
+		parseText($(this).text())
+
+		// if (e.keyCode === 13) {
+
+		// 	var newRoom = roomsRef.push();
+  // 			newRoom.set({
+  // 				Admin: linkedID,
+		// 		AdminDisplay: linkedName,
+		// 		AdminEmail: linkedEmail,
+		// 		GPS: false,
+		// 		Net_Name: $('#test').val(),
+		// 		Room_ID: newRoom.name()
+  // 			})
+		
+		// 	$('#test').val('');
+		// };
+
+	}) 
+
+	// buttons
+	$('#button-holders').on('click', 'button', function(){
+		current_activity = this.id.slice(0,4);
+		if (current_activity === 'drop') {
+			$('#title').html('<span class="fa fa-anchor"></span> Drop')
+		};
+		if (current_activity === 'join') {
+			$('#title').html('<span class="fa fa-rocket"></span> Join')
+		};
+		console.log('current_activity set to ' + current_activity);
+		$('#button-holders').hide('fast');
+		$('#input-holders').show();
+	})
+
+	// back effectively resets the screen
+	$('#back').on('click', function () {
+		current_activity = '';
+		$('#input-holders').hide('fast');
+		$('#button-holders').fadeIn('fast');
+		$('#title').html('<span class="fa fa-users"></span> Drop Net')
+		console.log('clicked: #back');
+	})
+
+	// text input in case mic doesnt work
+	$('#text-input').keypress(function(e) {
+		if (e.keyCode === 13) {
+			current_activity = this.id.slice(0,4)
+			handleNet($(this).text());
+			console.log('enter pressed');
+		}
+		$(this).text('')
+	})
+
+}) // --- closes document ready ---
+
+var fade = function (node) {
+	var level 	= 1;
+	var step 	= function () {
+		var hex = level.toString(16);
+		node.style.backgroundColor = '#FFFF' + hex + hex;
+		if (level < 15) {
+			level += 1;
+			setTimeout(step, 100);
+		}
+	};
+	setTimeout(step, 100);
+};
+//fade(document.body)
+
+	
+</script>
+</body>
+</html>

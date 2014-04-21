@@ -1,0 +1,485 @@
+<!-- views/profile.ejs -->
+<!doctype html>
+<html>
+<head>
+	<title> Drop Net Home </title>
+	<!-- <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> -->
+	<link rel="stylesheet" href="/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/css/fa/css/font-awesome.min.css">
+	<!-- <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"> -->
+	<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
+	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script src='https://cdn.firebase.com/js/client/1.0.11/firebase.js'></script>
+	<style>
+		body 		{ padding-top:80px; word-wrap:break-word; }
+
+		#speech {
+		  -webkit-transform: scale(4,4)
+		}
+
+		#bigmic {
+			-webkit-transform: scale(7,7); 
+			opacity:1;
+			color: red; 
+			width:10px; 
+			border:none; 
+			margin-left:00px; 
+			margin-top:50px;
+			/*margin: auto;*/
+		}
+
+		#input-holders {
+			display: none;
+		}
+		#text-input {
+			margin-top: 100px;
+			border: none;
+			border-bottom: 1px solid grey;
+			height: 50px;
+			width: 250px;
+			font-size: 24px;
+		}
+		#back{
+			margin-bottom: 20px;
+			margin-right: 215px;
+			border: none;
+		}
+		#title {
+			font-weight: 100;
+		}
+		#title .fa-users {
+			color: #088DF4;
+		}
+
+	</style>
+</head>
+<body>
+<div class="container">
+
+	<div class="page-header text-center">
+		<h1 id="title"><span class="fa fa-users"></span> Drop Net </h1>
+		<!-- <a href="/logout" class="btn btn-default btn-sm">Logout</a> -->
+		<button id="cloud" class='btn btn-default'><i class="fa fa-cloud-download"></i></button>
+	</div>
+
+	<div id='button-holders' class='text-center'>
+		<button id='drop-btn' class="btn btn-primary btn-lg"><span class="fa fa-anchor"><br>Drop</button>
+		<button id='join-btn' class="btn btn-default btn-lg"><span class="fa fa-rocket"><br>Join</button>
+	</div>
+	<div id='input-holders' class='text-center'>
+		<div>
+			<button id='back' class='btn btn-default'><span class="fa fa-arrow-left"></button>
+		</div>
+		<input speech="speech" x-webkit-speech="x-webkit-speech" id='bigmic'/>
+		<br>
+		<input id='text-input' placeholder="type here...">
+	</div>
+	<div>
+	</div>
+	<!-- <div id='join-input-holders' class='text-center'>
+		<input speech="speech" x-webkit-speech="x-webkit-speech" id='join-bigmic'/>
+		<br>
+		<input id='join-text-input' placeholder="type here...">
+	</div> -->
+
+	<!-- Speech Input 
+		<input id='test'>
+		<input speech="speech" x-webkit-speech="x-webkit-speech" id='speechtext'/>
+	 -->
+
+	
+
+	<!-- LinkedIn Profile <div class='row'>
+		<div class="col-sm-6">
+			<div class="well">
+				<h3 class="text-primary"><span class="fa fa-linkedin"></span> LinkedIn</h3>
+				<% if (user.linkedin.token) { %>
+					<p>
+						<strong>id</strong>: <%= user.linkedin.id %><br>
+						<strong>token</strong>: <%= user.linkedin.token %><br>
+						<strong>email</strong>: <%= user.linkedin.email %><br>
+						<strong>name</strong>: <%= user.linkedin.name %> <br>
+						<strong>headline</strong>: <%= user.linkedin.headline %> <br>
+						<strong>picture</strong>: <img src="<%= user.linkedin.picture %>"><br>
+					</p>
+
+					<a href="/unlink/linkedin" class="btn btn-primary">Unlink</a>
+				<% } else { %>
+					<a href="/connect/linkedin" class="btn btn-primary">Connect LinkedIn</a>
+				<% } %>
+
+			</div>
+		</div>
+	</div> -->
+	<div id='netslist' style='margin: 20px auto auto auto; width: 50%'>
+		<table class='table table-striped table-condensed'>
+			<thead>
+				<th class='text-center'>ROOM NAME</th>
+				<th class='text-center'>USER ACTIVITY</th>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</div>
+</div>
+<script type="text/javascript">
+
+// global variables
+var myDataRef 	= new Firebase('https://anugc91865t.firebaseio-demo.com/');
+var roomsRef 	= myDataRef.child('rooms');
+var usersRef 	= myDataRef.child('users');
+var linkedID 	= "<%= user.linkedin.id %>"
+var linkedName 	= "<%= user.linkedin.name %>"
+var linkedEmail = "<%= user.linkedin.email %>"
+
+var current_activity;
+var existing_rooms = []; // room name, rooms uniqueID ...
+var guest_of_rooms = []; // rooms unique ID
+var admin_of_rooms = []; // rooms unique ID
+var guestlist_of_rooms = {}; //guest objects of rooms
+
+//guestlist_of_rooms = {
+//	roomname1: [ {guest1}, {guest2}, {guest3} ],
+//	roomname2: [ {guest1}, {guest2}, {guest3} ],
+//	roomname3: [ {guest1}, {guest2}, {guest3} ]
+//}
+
+// Use this to populate empty arrays for use in the global scope
+
+	roomsRef.on('child_added', function(snap){
+		console.log('pushing ' + snap.val().Net_Name);
+		existing_rooms.push(snap.val().Net_Name);
+		existing_rooms.push(snap.val().Room_ID);
+		guestlist_of_rooms[snap.val().Net_Name] = [];
+	})
+
+	roomsRef.on('child_changed', function(snap){
+		var holder = [];
+		var kl = snap.val()['guests']
+		var tempRoomName = snap.val().Net_Name;
+		for (var x in kl) {			//x is each individual guest
+			holder.push(x);
+		}
+		guestlist_of_rooms[tempRoomName] = holder;
+	})
+
+	roomsRef.once('value', function(snap){
+		console.log('once-ing');
+		console.log(snap.val());
+		var allRooms = snap.val() //.rooms //['guests']
+
+		for (var room in allRooms) {
+
+			console.log('room is: ' + room);
+			var roomHolder = [];
+			for (var guest in allRooms[room]) {
+				//roomHolder.push(guest)
+				console.log('guest is: ' + guest);
+			}
+			guestlist_of_rooms[room] = roomHolder;
+			//guestlist_of_rooms.push(roomHolder)	
+		}
+
+
+		/*
+		var tempRoomName = snap.val().Net_Name;
+		for (var x in kl) {			//x is each individual guest
+			holder.push(x);
+		}
+		guestlist_of_rooms[tempRoomName] = holder;
+		*/
+	})
+
+	usersRef.child(linkedID + '/guest_of/').on('child_added', function(snap){
+		console.log('pushing ' + snap.val().Net_Name);
+		guest_of_rooms.push(snap.val());
+		guest_of_rooms.push(snap.name());
+	})
+
+	usersRef.child(linkedID + '/admin_of/').on('child_added', function(snap){
+		console.log('pushing ' + snap.val().Net_Name);
+		admin_of_rooms.push(snap.val());
+		admin_of_rooms.push(snap.name());
+	})
+
+
+$(document).ready(function(){
+
+	function checkCurrentRooms(){
+		for (var i=0; i < existing_rooms.length; i+=2){
+			if (admin_of_rooms.indexOf(existing_rooms[i])!== -1) {
+				$('tbody').append('<tr><td class="text-center">'+existing_rooms[i]+'</td><td class="text-center">admin<td></tr>');
+				//displayCurrentRooms(existing_rooms[i], 'admin')
+			}
+			else if (guest_of_rooms.indexOf(existing_rooms[i])!== -1){
+				$('tbody').append('<tr><td class="text-center">'+existing_rooms[i]+'</td><td class="text-center">guest<td></tr>');
+				//displayCurrentRooms(existing_rooms[i], 'guest')
+			}
+			else {
+				$('tbody').append('<tr><td class="text-center">'+existing_rooms[i]+'</td><td class="text-center">not invited!<td></tr>');	
+				//displayCurrentRooms(existing_rooms[i], 'not joined')
+			}
+		}
+	}
+
+	function displayCurrentRooms (value, text) {
+		$('tbody').append('<tr><td class="text-center">'+existing_rooms[i]+'</td><td class="text-center">admin<td></tr>');
+		//$('tbody').append('<tr><td class="text-center">'+ value +'</td><td class="text-center">'+ text +'<td></tr>');
+	}
+
+	var parseText = function(input){
+		//var existingroomnames = pluck(myDataRef, "roomname");
+		var now = Date.now();
+		var query_room = input.slice(9, input.length)
+
+	  	if ( /^drop net/.test(input) ){
+
+	  		if (existing_rooms.indexOf(query_room) !== -1) { 
+	  			//creating a new room
+		  		var newRoom = roomsRef.push();
+	  			newRoom.set({
+	  				Admin: linkedID,
+					AdminDisplay: linkedName,
+					AdminEmail: linkedEmail,
+					GPS: false,
+					Net_Name: $('#test').val(),
+					Room_ID: newRoom.name(),
+					created: now
+	  			})
+				$('#test').val('');
+
+	    		return 'Net created: ' + query_room;
+			} else {
+				// name taken. do something
+			}
+	  	}
+
+	  	else if ( /^join net/.test(input) ){
+	  		if (existing_rooms.indexOf(query_room) !== -1) {
+				//creating a new room
+				var target_room = existing_rooms.indexOf(query_room) + 1;
+				var guestlist = myDataRef.child('/rooms/' + target_room + '/guests' + linkedID);
+
+				guestlist.set({
+					visitor_id : linkedID,
+					visitor_name : linkedName,
+					visitor_email : linkedEmail
+
+				})
+
+	  			return 'Net joined: ' + query_room;
+	  		} else {
+	  			//net doesnt exist, do somethign
+	  		}
+	  	}
+	  	return false;
+	}
+
+	function handleNet (input) {
+		console.log('handleNet');
+		var now = Date.now();
+		if (current_activity === 'drop') {
+			if (existing_rooms.indexOf(input) === -1) { 
+	  			//creating a new room
+		  		var newRoom = roomsRef.push();
+		  		var newRoomID = newRoom.name();
+	  			newRoom.set({
+	  				Admin: linkedID,
+					AdminDisplay: linkedName,
+					AdminEmail: linkedEmail,
+					GPS: false,
+					Net_Name: input,
+					Room_ID: newRoomID,
+					created: now
+	  			});
+
+	  			var userEvent = usersRef.child(linkedID + '/admin_of/' + newRoomID).set(input);
+	  			var userMeta = usersRef.child(linkedID + '/meta/').set({
+	  				ID: linkedID,
+					DisplayName: linkedName,
+					Email: linkedEmail,
+					GPS: false,
+					updated: now
+	  			});
+
+				$('#test').val('');
+	    		return 'Net created: ' + input;
+			} else {
+				// name taken. do something
+				console.log('index !== -1 aka net already exists');
+				var warning = 'Net already exists';
+				$('body').append("<div class='alert alert-danger text-center'> "+
+  				"<button type='button' class='close' data-" +
+  				"dismiss='alert' "+ 
+  				"aria-hidden='true'>&times;</button>" +
+  				"<strong>Warning! </strong>"+warning+"</div>");
+  				setTimeout(function(){
+  					$(".alert").remove()
+  				}, 3000);
+			}
+
+		};
+		if (current_activity === 'join') {
+			if (existing_rooms.indexOf(input) !== -1) { 
+	  			var fbid = existing_rooms[existing_rooms.indexOf(input)+1];
+				roomsRef.child(fbid + '/guests/' + linkedID).set({
+					gLinkedIn: linkedID,
+					gDisplayName: linkedName,
+					gEmail: linkedEmail,
+					added: now
+				})
+
+				var userEvent = usersRef.child(linkedID + '/guest_of/' + fbid).set(input);
+
+				$('#test').val('');
+				return 'Net joined: ' + input;
+
+			} else {
+				// name taken. do something
+				console.log('index !== -1 aka net DOES NOT exists');
+				var warning = 'Net DOES NOT exist';
+				$('body').append("<div class='alert alert-danger " + 
+					"text-center'> <button type='button'" + 
+					"class='close' data-dismiss='alert' "+ 
+  					"aria-hidden='true'>&times;</button>" +
+  					"<strong>Warning! </strong>"+warning+"</div>");
+  				setTimeout(function(){
+  					$(".alert").remove()
+  				}, 3000);
+			}
+		};
+		$('#test').val('');
+		return false;
+	}
+
+
+  	function logger (stuff) {
+  		console.log(stuff);
+  		var state = handleNet(stuff);
+  		//go back to index page
+  		console.log(state);
+  		if (state !== false){
+	  		$('#back').trigger('click');
+			console.log('activity completed');
+		}
+  		//var state =parseText(stuff)
+	  		// if (state){
+	  		// 	$('body').append("<p class='bg-success'>"+state+"</div>");
+	  		// 	$('.bg-danger').remove();
+	  		// }
+	  		// else {
+	  		// 	$('body').append("<div class='bg-danger'>Unrecognised Command!</div>");
+	  		// }
+  		return stuff;
+  	}
+
+  	var throttlelogger = _.throttle(logger, 6000);
+
+  	checkCurrentRooms();
+  	$('#netslist').hide();
+
+	var timer;
+	$('#bigmic').on('input', function(){
+		console.log('...speech text processing');
+		$('#text-input').val($(this).val())
+		var that = this;
+		timer = setTimeout(function(){
+			throttlelogger($(that).val())	
+		}, 2000)
+	})
+
+	$('#test').keypress(function (e) {
+		parseText($(this).text())
+
+		// if (e.keyCode === 13) {
+
+		// 	var newRoom = roomsRef.push();
+  // 			newRoom.set({
+  // 				Admin: linkedID,
+		// 		AdminDisplay: linkedName,
+		// 		AdminEmail: linkedEmail,
+		// 		GPS: false,
+		// 		Net_Name: $('#test').val(),
+		// 		Room_ID: newRoom.name()
+  // 			})
+		
+		// 	$('#test').val('');
+		// };
+
+	}) 
+
+	// buttons
+	$('#button-holders').on('click', 'button', function(){
+		current_activity = this.id.slice(0,4);
+		// views:
+		//$('#netslist').hide();
+		$('#netslist').show();
+		if (current_activity === 'drop') {
+			$('#title').html('<span class="fa fa-anchor"></span> Drop')
+		};
+		if (current_activity === 'join') {
+			$('#title').html('<span class="fa fa-rocket"></span> Join')
+		};
+		console.log('current_activity set to ' + current_activity);
+		$('#button-holders').hide('fast');
+		$('#input-holders').show();
+	})
+
+	// back effectively resets the screen
+	$('#back').on('click', function () {
+		current_activity = '';
+		// views:
+		$('#input-holders').hide('fast'); // switch input for drop/join page
+		$('#button-holders').fadeIn('fast');
+		$('#title').html('<span class="fa fa-users"></span> Drop Net')
+		console.log('clicked: #back');
+		$('tbody tr').remove(); // why is this being removed???
+		checkCurrentRooms();
+		//$('#netslist').show();
+	})
+
+	// text input in case mic doesnt work
+	$('#text-input').keypress(function(e) {
+		if (e.keyCode === 13) {
+			current_activity = this.id.slice(0,4)
+			handleNet($(this).text());
+			console.log('enter pressed');
+		}
+		$(this).text('')
+	})
+
+	var to = 'leebyp@gmail.com'
+
+	$('#cloudbreak').on('click', function(){
+		$.ajax({
+		  type: "GET",
+		  url: "https://sendgrid.com/api/mail.send.json?api_user=dropnet&api_key=dropnet&to=" + to + "&from=leebyp@gmail.com&subject=test&text=hello there",
+		  dataType: 'jsonp',
+		  jsonp: false,
+		  error: function(res) {
+		    if (res.status === 200) { alert('email sent') }
+		    else { alert('email fail') }
+		  }
+		});
+	})
+
+}) // --- closes document ready ---
+
+var fade = function (node) {
+	var level 	= 1;
+	var step 	= function () {
+		var hex = level.toString(16);
+		node.style.backgroundColor = '#FFFF' + hex + hex;
+		if (level < 15) {
+			level += 1;
+			setTimeout(step, 100);
+		}
+	};
+	setTimeout(step, 100);
+};
+//fade(document.body)
+// https://www.linkedin.com/profile/view?id=XXX
+	
+</script>
+</body>
+</html>
